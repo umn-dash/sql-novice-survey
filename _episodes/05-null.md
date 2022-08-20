@@ -31,55 +31,55 @@ the value `-null-` to make the NULLs easier to see:
 {: .sql}
 
 To start,
-let's have a look at the `Visited` table.
+let's have a look at the `Visit` table.
 There are eight records,
 but #752 doesn't have a date --- or rather,
 its date is null:
 
 ~~~
-SELECT * FROM Visited;
+SELECT * FROM Visit;
 ~~~
 {: .sql}
 
-|id   |site |dated     |
-|-----|-----|----------|
-|619  |DR-1 |1927-02-08|
-|622  |DR-1 |1927-02-10|
-|734  |DR-3 |1930-01-07|
-|735  |DR-3 |1930-01-12|
-|751  |DR-3 |1930-02-26|
-|752  |DR-3 |-null-    |
-|837  |MSK-4|1932-01-14|
-|844  |DR-1 |1932-03-22|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|619     |DR-1     |1927-02-08|
+|622     |DR-1     |1927-02-10|
+|734     |DR-3     |1930-01-07|
+|735     |DR-3     |1930-01-12|
+|751     |DR-3     |1930-02-26|
+|752     |DR-3     |-null-    |
+|837     |MSK-4    |1932-01-14|
+|844     |DR-1     |1932-03-22|
 
 Null doesn't behave like other values.
 If we select the records that come before 1930:
 
 ~~~
-SELECT * FROM Visited WHERE dated < '1930-01-01';
+SELECT * FROM Visit WHERE visit_date < '1930-01-01';
 ~~~
 {: .sql}
 
-|id   |site|dated     |
-|-----|----|----------|
-|619  |DR-1|1927-02-08|
-|622  |DR-1|1927-02-10|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|619     |DR-1     |1927-02-08|
+|622     |DR-1     |1927-02-10|
 
 we get two results,
 and if we select the ones that come during or after 1930:
 
 ~~~
-SELECT * FROM Visited WHERE dated >= '1930-01-01';
+SELECT * FROM Visit WHERE visit_date >= '1930-01-01';
 ~~~
 {: .sql}
 
-|id   |site |dated     |
-|-----|-----|----------|
-|734  |DR-3 |1930-01-07|
-|735  |DR-3 |1930-01-12|
-|751  |DR-3 |1930-02-26|
-|837  |MSK-4|1932-01-14|
-|844  |DR-1 |1932-03-22|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|734     |DR-3     |1930-01-07|
+|735     |DR-3     |1930-01-12|
+|751     |DR-3     |1930-02-26|
+|837     |MSK-4    |1932-01-14|
+|844     |DR-1     |1932-03-22|
 
 we get five,
 but record #752 isn't in either set of results.
@@ -107,14 +107,14 @@ In particular,
 comparing things to null with = and != produces null:
 
 ~~~
-SELECT * FROM Visited WHERE dated = NULL;
+SELECT * FROM Visit WHERE visit_date = NULL;
 ~~~
 {: .sql}
 
 produces no output, and neither does:
 
 ~~~
-SELECT * FROM Visited WHERE dated != NULL;
+SELECT * FROM Visit WHERE visit_date != NULL;
 ~~~
 {: .sql}
 
@@ -122,30 +122,30 @@ To check whether a value is `null` or not,
 we must use a special test `IS NULL`:
 
 ~~~
-SELECT * FROM Visited WHERE dated IS NULL;
+SELECT * FROM Visit WHERE visit_date IS NULL;
 ~~~
 {: .sql}
 
-|id   |site|dated     |
-|-----|----|----------|
-|752  |DR-3|-null-    |
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|752     |DR-3     |-null-    |
 
 or its inverse `IS NOT NULL`:
 
 ~~~
-SELECT * FROM Visited WHERE dated IS NOT NULL;
+SELECT * FROM Visit WHERE visit_date IS NOT NULL;
 ~~~
 {: .sql}
 
-|id   |site |dated     |
-|-----|-----|----------|
-|619  |DR-1 |1927-02-08|
-|622  |DR-1 |1927-02-10|
-|734  |DR-3 |1930-01-07|
-|735  |DR-3 |1930-01-12|
-|751  |DR-3 |1930-02-26|
-|837  |MSK-4|1932-01-14|
-|844  |DR-1 |1932-03-22|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|619     |DR-1     |1927-02-08|
+|622     |DR-1     |1927-02-10|
+|734     |DR-3     |1930-01-07|
+|735     |DR-3     |1930-01-12|
+|751     |DR-3     |1930-02-26|
+|837     |MSK-4    |1932-01-14|
+|844     |DR-1     |1932-03-22|
 
 Null values can cause headaches wherever they appear.
 For example,
@@ -154,16 +154,16 @@ that weren't taken by Lake.
 It's natural to write the query like this:
 
 ~~~
-SELECT * FROM Survey WHERE quant = 'sal' AND person != 'lake';
+SELECT * FROM Measurement WHERE type = 'sal' AND person_id != 'lake';
 ~~~
 {: .sql}
 
-|taken|person|quant|reading|
-|-----|------|-----|-------|
-|619  |dyer  |sal  |0.13   |
-|622  |dyer  |sal  |0.09   |
-|752  |roe   |sal  |41.6   |
-|837  |roe   |sal  |22.5   |
+|visit_id|person_id|type|value|
+|--------|---------|----|-----|
+|619     |dyer     |sal |0.13 |
+|622     |dyer     |sal |0.09 |
+|752     |roe      |sal |41.6 |
+|837     |roe      |sal |22.5 |
 
 but this query filters omits the records
 where we don't know who took the measurement.
@@ -175,17 +175,17 @@ If we want to keep these records
 we need to add an explicit check:
 
 ~~~
-SELECT * FROM Survey WHERE quant = 'sal' AND (person != 'lake' OR person IS NULL);
+SELECT * FROM Measurement WHERE type = 'sal' AND (person_id != 'lake' OR person_id IS NULL);
 ~~~
 {: .sql}
 
-|taken|person|quant|reading|
-|-----|------|-----|-------|
-|619  |dyer  |sal  |0.13   |
-|622  |dyer  |sal  |0.09   |
-|735  |-null-|sal  |0.06   |
-|752  |roe   |sal  |41.6   |
-|837  |roe   |sal  |22.5   |
+|visit_id|person_id|type|value|
+|--------|---------|----|-----|
+|619     |dyer     |sal |0.13 |
+|622     |dyer     |sal |0.09 |
+|735     |-null-   |sal |0.06 |
+|752     |roe      |sal |41.6 |
+|837     |roe      |sal |22.5 |
 
 We still have to decide whether this is the right thing to do or not.
 If we want to be absolutely sure that
@@ -201,18 +201,18 @@ detail in [the next section]({{ page.root }}{% link _episodes/06-agg.md %}).
 
 > ## Sorting by Known Date
 >
-> Write a query that sorts the records in `Visited` by date,
+> Write a query that sorts the records in `Visit` by date,
 > omitting entries for which the date is not known
 > (i.e., is null).
 >
 > > ## Solution
 > >
 > > ~~~
-> > SELECT * FROM Visited WHERE dated IS NOT NULL ORDER BY dated ASC;
+> > SELECT * FROM Visit WHERE visit_date IS NOT NULL ORDER BY visit_date ASC;
 > > ~~~
 > > {: .sql}
 > >
-> > |id        |site      |dated     |
+> > |visit_id  |site_name |visit_date|
 > > |----------|----------|----------|
 > > |619       |DR-1      |1927-02-08|
 > > |622       |DR-1      |1927-02-10|
@@ -229,19 +229,19 @@ detail in [the next section]({{ page.root }}{% link _episodes/06-agg.md %}).
 > What do you expect the following query to produce?
 >
 > ~~~
-> SELECT * FROM Visited WHERE dated IN ('1927-02-08', NULL);
+> SELECT * FROM Visit WHERE visit_date IN ('1927-02-08', NULL);
 > ~~~
 > {: .sql}
 >
 > What does it actually produce?
 > > ## Solution
 > >
-> > You might expect the above query to return rows where dated is either '1927-02-08' or NULL.
-> > Instead it only returns rows where dated is '1927-02-08', the same as you would get from this
+> > You might expect the above query to return rows WHERE visit_date is either '1927-02-08' or NULL.
+> > Instead it only returns rows WHERE visit_date is '1927-02-08', the same as you would get from this
 > > simpler query:
 > >
 > > ~~~
-> > SELECT * FROM Visited WHERE dated IN ('1927-02-08');
+> > SELECT * FROM Visit WHERE visit_date IN ('1927-02-08');
 > > ~~~
 > > {: .sql}
 > >
@@ -251,7 +251,7 @@ detail in [the next section]({{ page.root }}{% link _episodes/06-agg.md %}).
 > > If we wanted to actually include NULL, we would have to rewrite the query to use the IS NULL condition:
 > >
 > > ~~~
-> > SELECT * FROM Visited WHERE dated = '1927-02-08' OR dated IS NULL;
+> > SELECT * FROM Visit WHERE visit_date = '1927-02-08' OR visit_date IS NULL;
 > > ~~~
 > > {: .sql}
 > {: .solution}
