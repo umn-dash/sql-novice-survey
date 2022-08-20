@@ -19,23 +19,23 @@ i.e.,
 to select only those records that match certain criteria.
 For example,
 suppose we want to see when a particular site was visited.
-We can select these records from the `Visited` table
+We can select these records from the `Visit` table
 by using a `WHERE` clause in our query:
 
 ~~~
-SELECT * FROM Visited WHERE site = 'DR-1';
+SELECT * FROM Visit WHERE site_name = 'DR-1';
 ~~~
 {: .sql}
 
-|id   |site|dated     |
-|-----|----|----------|
-|619  |DR-1|1927-02-08|
-|622  |DR-1|1927-02-10|
-|844  |DR-1|1932-03-22|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|619     |DR-1     |1927-02-08|
+|622     |DR-1     |1927-02-10|
+|844     |DR-1     |1932-03-22|
 
 The database manager executes this query in two stages.
 First,
-it checks at each row in the `Visited` table
+it checks at each row in the `Visit` table
 to see which ones satisfy the `WHERE`.
 It then uses the column names following the `SELECT` keyword
 to determine which columns to display.
@@ -45,15 +45,15 @@ we can filter records using `WHERE`
 based on values in columns that aren't then displayed:
 
 ~~~
-SELECT id FROM Visited WHERE site = 'DR-1';
+SELECT visit_id FROM Visit WHERE site_name = 'DR-1';
 ~~~
 {: .sql}
 
-|id   |
-|-----|
-|619  |
-|622  |
-|844  |
+|visit_id|
+|--------|
+|619     |
+|622     |
+|844     |
 
 ![SQL Filtering in Action](../fig/sql-filter.svg)
 
@@ -62,14 +62,14 @@ For example,
 we can ask for all information from the DR-1 site collected before 1930:
 
 ~~~
-SELECT * FROM Visited WHERE site = 'DR-1' AND dated < '1930-01-01';
+SELECT * FROM Visit WHERE site_name = 'DR-1' AND visit_date < '1930-01-01';
 ~~~
 {: .sql}
 
-|id   |site|dated     |
-|-----|----|----------|
-|619  |DR-1|1927-02-08|
-|622  |DR-1|1927-02-10|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|619     |DR-1     |1927-02-08|
+|622     |DR-1     |1927-02-10|
 
 > ## Date Types
 >
@@ -97,43 +97,43 @@ If we want to find out what measurements were taken by either Lake or Roerich,
 we can combine the tests on their names using `OR`:
 
 ~~~
-SELECT * FROM Survey WHERE person = 'lake' OR person = 'roe';
+SELECT * FROM Measurement WHERE person_id = 'lake' OR person_id = 'roe';
 ~~~
 {: .sql}
 
-|taken|person|quant|reading|
-|-----|------|-----|-------|
-|734  |lake  |sal  |0.05   |
-|751  |lake  |sal  |0.1    |
-|752  |lake  |rad  |2.19   |
-|752  |lake  |sal  |0.09   |
-|752  |lake  |temp |-16.0  |
-|752  |roe   |sal  |41.6   |
-|837  |lake  |rad  |1.46   |
-|837  |lake  |sal  |0.21   |
-|837  |roe   |sal  |22.5   |
-|844  |roe   |rad  |11.25  |
+|visit_id|person_id|type|value|
+|--------|---------|----|-----|
+|734     |lake     |sal |0.05 |
+|751     |lake     |sal |0.1  |
+|752     |lake     |rad |2.19 |
+|752     |lake     |sal |0.09 |
+|752     |lake     |temp|-16.0|
+|752     |roe      |sal |41.6 |
+|837     |lake     |rad |1.46 |
+|837     |lake     |sal |0.21 |
+|837     |roe      |sal |22.5 |
+|844     |roe      |rad |11.25|
 
 Alternatively,
 we can use `IN` to see if a value is in a specific set:
 
 ~~~
-SELECT * FROM Survey WHERE person IN ('lake', 'roe');
+SELECT * FROM Measurement WHERE person_id IN ('lake', 'roe');
 ~~~
 {: .sql}
 
-|taken|person|quant|reading|
-|-----|------|-----|-------|
-|734  |lake  |sal  |0.05   |
-|751  |lake  |sal  |0.1    |
-|752  |lake  |rad  |2.19   |
-|752  |lake  |sal  |0.09   |
-|752  |lake  |temp |-16.0  |
-|752  |roe   |sal  |41.6   |
-|837  |lake  |rad  |1.46   |
-|837  |lake  |sal  |0.21   |
-|837  |roe   |sal  |22.5   |
-|844  |roe   |rad  |11.25  |
+|visit_id|person_id|type|value|
+|--------|---------|----|-----|
+|734     |lake     |sal |0.05 |
+|751     |lake     |sal |0.1  |
+|752     |lake     |rad |2.19 |
+|752     |lake     |sal |0.09 |
+|752     |lake     |temp|-16.0|
+|752     |roe      |sal |41.6 |
+|837     |lake     |rad |1.46 |
+|837     |lake     |sal |0.21 |
+|837     |roe      |sal |22.5 |
+|844     |roe      |rad |11.25|
 
 We can combine `AND` with `OR`,
 but we need to be careful about which operator is executed first.
@@ -141,37 +141,37 @@ If we *don't* use parentheses,
 we get this:
 
 ~~~
-SELECT * FROM Survey WHERE quant = 'sal' AND person = 'lake' OR person = 'roe';
+SELECT * FROM Measurement WHERE type = 'sal' AND person_id = 'lake' OR person_id = 'roe';
 ~~~
 {: .sql}
 
-|taken|person|quant|reading|
-|-----|------|-----|-------|
-|734  |lake  |sal  |0.05   |
-|751  |lake  |sal  |0.1    |
-|752  |lake  |sal  |0.09   |
-|752  |roe   |sal  |41.6   |
-|837  |lake  |sal  |0.21   |
-|837  |roe   |sal  |22.5   |
-|844  |roe   |rad  |11.25  |
+|visit_id|person_id|type|value|
+|--------|---------|----|-----|
+|734     |lake     |sal |0.05 |
+|751     |lake     |sal |0.1  |
+|752     |lake     |sal |0.09 |
+|752     |roe      |sal |41.6 |
+|837     |lake     |sal |0.21 |
+|837     |roe      |sal |22.5 |
+|844     |roe      |rad |11.25|
 
 which is salinity measurements by Lake,
 and *any* measurement by Roerich.
 We probably want this instead:
 
 ~~~
-SELECT * FROM Survey WHERE quant = 'sal' AND (person = 'lake' OR person = 'roe');
+SELECT * FROM Measurement WHERE type = 'sal' AND (person_id = 'lake' OR person_id = 'roe');
 ~~~
 {: .sql}
 
-|taken|person|quant|reading|
-|-----|------|-----|-------|
-|734  |lake  |sal  |0.05   |
-|751  |lake  |sal  |0.1    |
-|752  |lake  |sal  |0.09   |
-|752  |roe   |sal  |41.6   |
-|837  |lake  |sal  |0.21   |
-|837  |roe   |sal  |22.5   |
+|visit_id|person_id|type|value|
+|--------|---------|----|-----|
+|734     |lake     |sal |0.05 |
+|751     |lake     |sal |0.1  |
+|752     |lake     |sal |0.09 |
+|752     |roe      |sal |41.6 |
+|837     |lake     |sal |0.21 |
+|837     |roe      |sal |22.5 |
 
 We can also filter by partial matches.  For example, if we want to
 know something just about the site names beginning with "DR" we can
@@ -180,19 +180,19 @@ use the `LIKE` keyword.  The percent symbol acts as a
 place.  It can be used at the beginning, middle, or end of the string:
 
 ~~~
-SELECT * FROM Visited WHERE site LIKE 'DR%';
+SELECT * FROM Visit WHERE site_name LIKE 'DR%';
 ~~~
 {: .sql}
 
-|id   |site |dated     |
-|-----|-----|----------|
-|619  |DR-1 |1927-02-08|
-|622  |DR-1 |1927-02-10|
-|734  |DR-3 |1930-01-07|
-|735  |DR-3 |1930-01-12|
-|751  |DR-3 |1930-02-26|
-|752  |DR-3 |          |
-|844  |DR-1 |1932-03-22|
+|visit_id|site_name|visit_date|
+|--------|---------|----------|
+|619     |DR-1     |1927-02-08|
+|622     |DR-1     |1927-02-10|
+|734     |DR-3     |1930-01-07|
+|735     |DR-3     |1930-01-12|
+|751     |DR-3     |1930-02-26|
+|752     |DR-3     |          |
+|844     |DR-1     |1932-03-22|
 
 
 Finally,
@@ -200,17 +200,17 @@ we can use `DISTINCT` with `WHERE`
 to give a second level of filtering:
 
 ~~~
-SELECT DISTINCT person, quant FROM Survey WHERE person = 'lake' OR person = 'roe';
+SELECT DISTINCT person_id, type FROM Measurement WHERE person_id = 'lake' OR person_id = 'roe';
 ~~~
 {: .sql}
 
-|person|quant|
-|------|-----|
-|lake  |sal  |
-|lake  |rad  |
-|lake  |temp |
-|roe   |sal  |
-|roe   |rad  |
+|person_id|type|
+|---------|----|
+|lake     |sal |
+|lake     |rad |
+|lake     |temp|
+|roe      |sal |
+|roe      |rad |
 
 But remember:
 `DISTINCT` is applied to the values displayed in the chosen columns,
@@ -253,7 +253,7 @@ not to the entire rows as they are being processed.
 >
 > > ## Solution
 > >
-> > Because we used `OR`, a site on the South Pole for example will still meet 
+> > Because we used `OR`, a site on the South Pole for example will still meet
 > > the second criteria and thus be included. Instead, we want to restrict this
 > > to sites that meet _both_ criteria:
 > >
@@ -267,20 +267,20 @@ not to the entire rows as they are being processed.
 > ## Finding Outliers
 >
 > Normalized salinity readings are supposed to be between 0.0 and 1.0.
-> Write a query that selects all records from `Survey`
+> Write a query that selects all records from `Measurement`
 > with salinity values outside this range.
 >
 > > ## Solution
 > >
 > > ~~~
-> > SELECT * FROM Survey WHERE quant = 'sal' AND ((reading > 1.0) OR (reading < 0.0));
+> > SELECT * FROM Measurement WHERE type = 'sal' AND ((value > 1.0) OR (value < 0.0));
 > > ~~~
 > > {: .sql}
 > >
-> > |taken     |person    |quant     |reading   |
-> > |----------|----------|----------|----------|
-> > |752       |roe       |sal       |41.6      |
-> > |837       |roe       |sal       |22.5      |
+> > |visit_id |person_id |type |value |
+> > |---------|----------|-----|------|
+> > |752      |roe       |sal  |41.6  |
+> > |837      |roe       |sal  |22.5  |
 > {: .solution}
 {: .challenge}
 
