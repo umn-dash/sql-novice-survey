@@ -18,11 +18,11 @@ we can do this calculation on the fly
 as part of our query:
 
 ~~~
-SELECT 1.05 * reading FROM Survey WHERE quant = 'rad';
+SELECT 1.05 * value FROM Measurement WHERE type = 'rad';
 ~~~
 {: .sql}
 
-|1.05 * reading|
+|1.05 * value  |
 |--------------|
 |10.311        |
 |8.19          |
@@ -34,7 +34,7 @@ SELECT 1.05 * reading FROM Survey WHERE quant = 'rad';
 |11.8125       |
 
 When we run the query,
-the expression `1.05 * reading` is evaluated for each row.
+the expression `1.05 * value` is evaluated for each row.
 Expressions can use any of the fields,
 all of usual arithmetic operators,
 and a variety of common functions.
@@ -44,16 +44,16 @@ we can convert temperature readings from Fahrenheit to Celsius
 and round to two decimal places:
 
 ~~~
-SELECT taken, round(5 * (reading - 32) / 9, 2) FROM Survey WHERE quant = 'temp';
+SELECT visit_id, round(5 * (value - 32) / 9, 2) FROM Measurement WHERE type = 'temp';
 ~~~
 {: .sql}
 
-|taken|round(5*(reading-32)/9, 2)|
-|-----|--------------------------|
-|734  |-29.72                    |
-|735  |-32.22                    |
-|751  |-28.06                    |
-|752  |-26.67                    |
+|visit_id|round(5 * (value - 32) / 9, 2)|
+|--------|------------------------------|
+|734     |-29.72                        |
+|735     |-32.22                        |
+|751     |-28.06                        |
+|752     |-26.67                        |
 
 As you can see from this example, though, the string describing our
 new field (generated from the equation) can become quite unwieldy. SQL
@@ -63,32 +63,32 @@ succinctness and clarity. For example, we could write the previous
 query as:
 
 ~~~
-SELECT taken, round(5 * (reading - 32) / 9, 2) as Celsius FROM Survey WHERE quant = 'temp';
+SELECT visit_id, round(5 * (value - 32) / 9, 2) as Celsius FROM Measurement WHERE type = 'temp';
 ~~~
 {: .sql}
 
-|taken|Celsius|
-|-----|-------|
-|734  |-29.72 |
-|735  |-32.22 |
-|751  |-28.06 |
-|752  |-26.67 |
+|visit_id|Celsius|
+|--------|-------|
+|734     |-29.72 |
+|735     |-32.22 |
+|751     |-28.06 |
+|752     |-26.67 |
 
 We can also combine values from different fields,
 for example by using the string concatenation operator `||`:
 
 ~~~
-SELECT personal || ' ' || family FROM Person;
+SELECT personal_name || ' ' || family_name FROM Person;
 ~~~
 {: .sql}
 
-|personal \|\| ' ' \|\| family|
-|-------------------------|
-|William Dyer             |
-|Frank Pabodie            |
-|Anderson Lake            |
-|Valentina Roerich        |
-|Frank Danforth           |
+|personal_name \|\| ' ' \|\| family_name|
+|---------------------------------------|
+|William Dyer                           |
+|Frank Pabodie                          |
+|Anderson Lake                          |
+|Valentina Roerich                      |
+|Frank Danforth                         |
 
 > ## Fixing Salinity Readings
 >
@@ -96,20 +96,20 @@ SELECT personal || ' ' || family FROM Person;
 > we realize that Valentina Roerich
 > was reporting salinity as percentages.
 > Write a query that returns all of her salinity measurements
-> from the `Survey` table
+> from the `Measurement` table
 > with the values divided by 100.
-> 
+>
 > > ## Solution
 > >
 > > ~~~
-> > SELECT taken, reading / 100 FROM Survey WHERE person = 'roe' AND quant = 'sal';
+> > SELECT visit_id, value / 100 FROM Measurement WHERE person_id = 'roe' AND type = 'sal';
 > > ~~~
 > > {: .sql}
 > >
-> > |taken     |reading / 100|
-> > |----------|-------------|
-> > |752       |0.416        |
-> > |837       |0.225        |
+> > |visit_id  |value / 100|
+> > |----------|-----------|
+> > |752       |0.416      |
+> > |837       |0.225      |
 > {: .solution}
 {: .challenge}
 
@@ -118,14 +118,14 @@ SELECT personal || ' ' || family FROM Person;
 > The `UNION` operator combines the results of two queries:
 >
 > ~~~
-> SELECT * FROM Person WHERE id = 'dyer' UNION SELECT * FROM Person WHERE id = 'roe';
+> SELECT * FROM Person WHERE person_id = 'dyer' UNION SELECT * FROM Person WHERE person_id = 'roe';
 > ~~~
 > {: .sql}
 >
-> |id  |personal |family |
-> |----|-------- |-------|
-> |dyer|William  |Dyer   |
-> |roe |Valentina|Roerich|
+> |person_id|personal_name|family_name |
+> |---------|-------------|------------|
+> |dyer     |William      |Dyer        |
+> |roe      |Valentina    |Roerich     |
 >
 > The `UNION ALL` command is equivalent to the `UNION` operator,
 > except that `UNION ALL` will select all values.
@@ -142,21 +142,21 @@ SELECT personal || ' ' || family FROM Person;
 > have been corrected as described in the previous challenge.
 > The output should be something like:
 >
-> |taken|reading|
-> |-----|-------|
-> |619  |0.13   |
-> |622  |0.09   |
-> |734  |0.05   |
-> |751  |0.1    |
-> |752  |0.09   |
-> |752  |0.416  |
-> |837  |0.21   |
-> |837  |0.225  |
-> 
+> |visit_id|value|
+> |--------|-----|
+> |619     |0.13 |
+> |622     |0.09 |
+> |734     |0.05 |
+> |751     |0.1  |
+> |752     |0.09 |
+> |752     |0.416|
+> |837     |0.21 |
+> |837     |0.225|
+>
 > > ## Solution
 > >
 > > ~~~
-> > SELECT taken, reading FROM Survey WHERE person != 'roe' AND quant = 'sal' UNION SELECT taken, reading / 100 FROM Survey WHERE person = 'roe' AND quant = 'sal' ORDER BY taken ASC;
+> > SELECT visit_id, value FROM Measurement WHERE person_id != 'roe' AND type = 'sal' UNION SELECT visit_id, value / 100 FROM Measurement WHERE person_id = 'roe' AND type = 'sal' ORDER BY visit_id ASC;
 > > ~~~
 > > {: .sql}
 > {: .solution}
@@ -164,19 +164,19 @@ SELECT personal || ' ' || family FROM Person;
 
 > ## Selecting Major Site Identifiers
 >
-> The site identifiers in the `Visited` table have two parts
+> The site identifiers in the `Visit` table have two parts
 > separated by a '-':
 >
 > ~~~
-> SELECT DISTINCT site FROM Visited;
+> SELECT DISTINCT site FROM Visit;
 > ~~~
 > {: .sql}
 >
-> |site |
-> |-----|
-> |DR-1 |
-> |DR-3 |
-> |MSK-4|
+> |site_name|
+> |---------|
+> |DR-1     |
+> |DR-3     |
+> |MSK-4    |
 >
 > Some major site identifiers (i.e. the letter codes) are two letters long and some are three.
 > The "in string" function `instr(X, Y)`
@@ -190,7 +190,7 @@ SELECT personal || ' ' || family FROM Person;
 >
 > > ## Solution
 > > ```
-> > SELECT DISTINCT substr(site, 1, instr(site, '-') - 1) AS MajorSite FROM Visited;
+> > SELECT DISTINCT substr(site_name, 1, instr(site_name, '-') - 1) AS MajorSite FROM Visit;
 > > ```
 > > {: .sql}
 > {: .solution}
