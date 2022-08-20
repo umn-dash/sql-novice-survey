@@ -18,20 +18,20 @@ In beginning our examination of the Antarctic data, we want to know:
 * which scientists took measurements on the expedition;
 
 To determine which measurements were taken at each site,
-we can examine the `Survey` table.
+we can examine the `Measurement` table.
 Data is often redundant,
 so queries often return redundant information.
 For example,
 if we select the quantities that have been measured
-from the `Survey` table,
+from the `Measurement` table,
 we get this:
 
 ~~~
-SELECT quant FROM Survey;
+SELECT type FROM Measurement;
 ~~~
 {: .sql}
 
-|quant|
+|type |
 |-----|
 |rad  |
 |sal  |
@@ -56,30 +56,30 @@ SELECT quant FROM Survey;
 |rad  |
 
 This result makes it difficult to see all of the different types of
-`quant` in the Survey table.  We can eliminate the redundant output to
+`type` in the Survey table.  We can eliminate the redundant output to
 make the result more readable by adding the `DISTINCT` keyword to our
 query:
 
 ~~~
-SELECT DISTINCT quant FROM Survey;
+SELECT DISTINCT type FROM Measurement;
 ~~~
 {: .sql}
 
-|quant|
+|type|
 |-----|
 |rad  |
 |sal  |
 |temp |
 
-If we want to determine which visit (stored in the `taken` column)
-have which `quant` measurement,
+If we want to determine which visit (stored in the `visit_id` column)
+have which `type` measurement,
 we can use the `DISTINCT` keyword on multiple columns.
 If we select more than one column,
 distinct *sets* of values are returned
 (in this case *pairs*, because we are selecting two columns):
 
 ~~~
-SELECT DISTINCT taken, quant FROM Survey;
+SELECT DISTINCT visit_id, type FROM Measurement;
 ~~~
 {: .sql}
 
@@ -123,15 +123,15 @@ SELECT * FROM Person ORDER BY id;
 ~~~
 {: .sql}
 
-|id     |personal |family  |
-|-------|---------|--------|
-|danfort|Frank    |Danforth|
-|dyer   |William  |Dyer    |
-|lake   |Anderson |Lake    |
-|pb     |Frank    |Pabodie |
-|roe    |Valentina|Roerich |
+|person_id|personal_name|family_name|
+|---------|-------------|-----------|
+|danfort  |Frank        |Danforth   |
+|dyer     |William      |Dyer       |
+|lake     |Anderson     |Lake       |
+|pb       |Frank        |Pabodie    |
+|roe      |Valentina    |Roerich    |
 
-By default, when we use `ORDER BY`, 
+By default, when we use `ORDER BY`,
 results are sorted in ascending order of the column we specify
 (i.e.,
 from least to greatest).
@@ -143,58 +143,59 @@ We can sort in the opposite order using `DESC` (for "descending"):
 > While it may look that the records are consistent every time we ask for them in this lesson, that is because no one has changed or modified any of the data so far. Remember to use `ORDER BY` if you want the rows returned to have any sort of consistent or predictable order.
 {: .callout}
 ~~~
-SELECT * FROM person ORDER BY id DESC;
+SELECT * FROM person ORDER BY person_id DESC;
 ~~~
 {: .sql}
 
-|id     |personal |family  |
-|-------|---------|--------|
-|roe    |Valentina|Roerich |
-|pb     |Frank    |Pabodie |
-|lake   |Anderson |Lake    |
-|dyer   |William  |Dyer    |
-|danfort|Frank    |Danforth|
+|person_id|personal_name|family_name|
+|---------|-------------|-----------|
+|roe      |Valentina    |Roerich    |
+|pb       |Frank        |Pabodie    |
+|lake     |Anderson     |Lake       |
+|dyer     |William      |Dyer       |
+|danfort  |Frank        |Danforth   |
+
 
 (And if we want to make it clear that we're sorting in ascending order,
 we can use `ASC` instead of `DESC`.)
 
 
 In order to look at which scientist measured quantities during each visit,
-we can look again at the `Survey` table.
+we can look again at the `Measurement` table.
 We can also sort on several fields at once.
 For example,
-this query sorts results first in ascending order by `taken`,
-and then in descending order by `person`
-within each group of equal `taken` values:
+this query sorts results first in ascending order by `visit_id`,
+and then in descending order by `person_id`
+within each group of equal `visit_id` values:
 
 ~~~
-SELECT taken, person, quant FROM Survey ORDER BY taken ASC, person DESC;
+SELECT visit_id, person_id, type FROM Measurement ORDER BY visit_id ASC, person_id DESC;
 ~~~
 {: .sql}
 
-|taken|person|quant|
-|-----|------|-----|
-|619  |dyer  |rad  |
-|619  |dyer  |sal  |
-|622  |dyer  |rad  |
-|622  |dyer  |sal  |
-|734  |pb    |rad  |
-|734  |pb    |temp |
-|734  |lake  |sal  |
-|735  |pb    |rad  |
-|735  |-null-|sal  |
-|735  |-null-|temp |
-|751  |pb    |rad  |
-|751  |pb    |temp |
-|751  |lake  |sal  |
-|752  |roe   |sal  |
-|752  |lake  |rad  |
-|752  |lake  |sal  |
-|752  |lake  |temp |
-|837  |roe   |sal  |
-|837  |lake  |rad  |
-|837  |lake  |sal  |
-|844  |roe   |rad  |
+|visit_id|person_id|type|
+|--------|---------|----|
+|619     |dyer     |rad |
+|619     |dyer     |sal |
+|622     |dyer     |rad |
+|622     |dyer     |sal |
+|734     |pb       |rad |
+|734     |pb       |temp|
+|734     |lake     |sal |
+|735     |pb       |rad |
+|735     |-null-   |sal |
+|735     |-null-   |temp|
+|751     |pb       |rad |
+|751     |pb       |temp|
+|751     |lake     |sal |
+|752     |roe      |sal |
+|752     |lake     |rad |
+|752     |lake     |sal |
+|752     |lake     |temp|
+|837     |roe      |sal |
+|837     |lake     |rad |
+|837     |lake     |sal |
+|844     |roe      |rad |
 
 This query gives us a good idea of which scientist was involved in which visit,
 and what measurements they performed during the visit.
@@ -205,36 +206,36 @@ performed which measurements by selecting the appropriate columns and
 removing duplicates.
 
 ~~~
-SELECT DISTINCT quant, person FROM Survey ORDER BY quant ASC;
+SELECT DISTINCT type, person_id FROM Measurement ORDER BY type ASC;
 ~~~
 {: .sql}
 
-|quant|person|
-|-----|------|
-|rad  |dyer  |
-|rad  |pb    |
-|rad  |lake  |
-|rad  |roe   |
-|sal  |dyer  |
-|sal  |lake  |
-|sal  |-null-|
-|sal  |roe   |
-|temp |pb    |
-|temp |-null-|
-|temp |lake  |
+|type |person_id|
+|-----|---------|
+|rad  |dyer     |
+|rad  |pb       |
+|rad  |lake     |
+|rad  |roe      |
+|sal  |dyer     |
+|sal  |lake     |
+|sal  |-null-   |
+|sal  |roe      |
+|temp |pb       |
+|temp |-null-   |
+|temp |lake     |
 
 > ## Finding Distinct Dates
 >
-> Write a query that selects distinct dates from the `Visited` table.
+> Write a query that selects distinct dates from the `Visit` table.
 >
 > > ## Solution
-> > 
+> >
 > > ~~~
-> > SELECT DISTINCT dated FROM Visited;
+> > SELECT DISTINCT visit_date FROM Visit;
 > > ~~~
 > > {: .sql}
 > >
-> > |dated     |
+> > |visit_date|
 > > |----------|
 > > |1927-02-08|
 > > |1927-02-10|
@@ -253,18 +254,19 @@ SELECT DISTINCT quant, person FROM Survey ORDER BY quant ASC;
 > ordered by family name.
 >
 > > ## Solution
-> > 
+> >
 > > ~~~
-> > SELECT personal, family FROM Person ORDER BY family ASC;
+> > SELECT personal_name, family_name FROM Person ORDER BY family_name ASC;
 > > ~~~
 > > {: .sql}
 > >
-> > |personal  |family    |
-> > |----------|----------|
-> > |Frank     |Danforth  |
-> > |William   |Dyer      |
-> > |Anderson  |Lake      |
-> > |Frank     |Pabodie   |
-> > |Valentina |Roerich   |
+> > |personal_name|family_name|
+> > |-------------|-----------|
+> > |Frank        |Danforth   |
+> > |William      |Dyer       |
+> > |Anderson     |Lake       |
+> > |Frank        |Pabodie    |
+> > |Valentina    |Roerich    |
+>
 > {: .solution}
 {: .challenge}
