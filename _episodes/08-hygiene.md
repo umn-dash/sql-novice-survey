@@ -34,22 +34,22 @@ The second rule is that every record should have a unique primary key.
 This can be a serial number that has no intrinsic meaning,
 one of the values in the record (like the `id` field in the `Person` table),
 or even a combination of values:
-the triple `(taken, person, quant)` from the `Survey` table uniquely identifies every measurement.
+the triple `(visit_id, person_id, type)` from the `Measurement` table uniquely identifies every measurement.
 
 The third rule is that there should be no redundant information.
 For example,
-we could get rid of the `Site` table and rewrite the `Visited` table like this:
+we could get rid of the `Site` table and rewrite the `Visit` table like this:
 
-|id   |lat   |long   |dated      |
-|-----|------|-------|-----------|
-|619  |-49.85|-128.57| 1927-02-08|
-|622  |-49.85|-128.57| 1927-02-10|
-|734  |-47.15|-126.72| 1930-01-07|
-|735  |-47.15|-126.72| 1930-01-12|
-|751  |-47.15|-126.72| 1930-02-26|
-|752  |-47.15|-126.72| -null-    |
-|837  |-48.87|-123.40| 1932-01-14|
-|844  |-49.85|-128.57| 1932-03-22|
+|visit_id|lat   |long   |visit_date |
+|--------|------|-------|-----------|
+|619     |-49.85|-128.57| 1927-02-08|
+|622     |-49.85|-128.57| 1927-02-10|
+|734     |-47.15|-126.72| 1930-01-07|
+|735     |-47.15|-126.72| 1930-01-12|
+|751     |-47.15|-126.72| 1930-02-26|
+|752     |-47.15|-126.72| -null-    |
+|837     |-48.87|-123.40| 1932-01-14|
+|844     |-49.85|-128.57| 1932-03-22|
 
 In fact,
 we could use a single table that recorded all the information about each reading in each row,
