@@ -20,7 +20,7 @@ both because that is more frequent than adding information,
 and because most other operations only make sense
 once queries are understood.
 
-The `Person`, `Survey`, `Site`, and `Visited` tables from the `survey,db` database were
+The `Person`, `Measurement`, `Site`, and `Visit` tables from the `Measurement,db` database were
 used during the earlier episodes. We're going to build a new database over the course
 of the upcoming episodes. Exit the `SQLite` interactive session if you're still in it.
 
@@ -30,7 +30,7 @@ of the upcoming episodes. Exit the `SQLite` interactive session if you're still 
 {: .sql}
 
 Launch `SQLite3` and create a new database, lets call it `newsurvey.db`.
-We use a different name to avoid confusion with the currently existing `survey.db` database.
+We use a different name to avoid confusion with the currently existing `Measurement.db` database.
 
 ~~~
 $ sqlite3 newsurvey.db
@@ -57,17 +57,17 @@ For example,
 the following statements create the four tables in our survey database:
 
 ~~~
-CREATE TABLE Person(id text, personal text, family text);
-CREATE TABLE Site(name text, lat real, long real);
-CREATE TABLE Visited(id integer, site text, dated text);
-CREATE TABLE Survey(taken integer, person text, quant text, reading real);
+CREATE TABLE Person ( person_id text, personal_name text, family_name text );
+CREATE TABLE Site ( site_name text, lat real, long real );
+CREATE TABLE Visit ( visit_id integer, site_name text, visit_date text );
+CREATE TABLE Measurement ( visit_id integer, person_id text, type text, value real );
 ~~~
 {: .sql}
 
 We can get rid of one of our tables using:
 
 ~~~
-DROP TABLE Survey;
+DROP TABLE Measurement;
 ~~~
 {: .sql}
 
@@ -78,7 +78,7 @@ but it's better not to have to rely on it.
 Different database systems support different data types for table columns,
 but most provide the following:
 
-|data type|  use                                       | 
+|data type|  use                                       |
 |---------|  ----------------------------------------- |
 |INTEGER  |  a signed integer                          |
 |REAL     |  a floating point number                   |
@@ -97,17 +97,17 @@ is an unending portability headache.
 When we create a table,
 we can specify several kinds of constraints on its columns.
 For example,
-a better definition for the `Survey` table would be:
+a better definition for the `Measurement` table would be:
 
 ~~~
-CREATE TABLE Survey(
-    taken   integer not null, -- where reading taken
-    person  text,             -- may not know who took it
-    quant   text not null,    -- the quantity measured
-    reading real not null,    -- the actual reading
-    primary key(taken, person, quant),    -- key is taken + person + quant
-    foreign key(taken) references Visited(id),
-    foreign key(person) references Person(id)
+CREATE TABLE Measurement(
+    visit_id  integer not null, -- the site visit when/where the measurement was takaen
+    person_id text,             -- may not know who took it
+    type      text not null,    -- the type of measurement
+    value     real not null,    -- the measure valued
+    primary key(visit_id, person_id, type),    -- key is visit_id + person_id + type
+    foreign key(visit_id) references Visited(visit_id),
+    foreign key(person_id) references Person(person_id)
 );
 ~~~
 {: .sql}
@@ -124,9 +124,9 @@ we can add, change, and remove records using our other set of commands,
 Here is an example of inserting rows into the `Site` table:
 
 ~~~
-INSERT INTO Site (name, lat, long) VALUES ('DR-1', -49.85, -128.57);
-INSERT INTO Site (name, lat, long) VALUES ('DR-3', -47.15, -126.72);
-INSERT INTO Site (name, lat, long) VALUES ('MSK-4', -48.87, -123.40);
+INSERT INTO Site (site_name, lat, long) VALUES ('DR-1', -49.85, -128.57);
+INSERT INTO Site (site_name, lat, long) VALUES ('DR-3', -47.15, -126.72);
+INSERT INTO Site (site_name, lat, long) VALUES ('MSK-4', -48.87, -123.40);
 ~~~
 {: .sql}
 
@@ -147,7 +147,7 @@ For example, if we made a mistake when entering the lat and long values
 of the last `INSERT` statement above, we can correct it with an update:
 
 ~~~
-UPDATE Site SET lat = -47.87, long = -122.40 WHERE name = 'MSK-4';
+UPDATE Site SET lat = -47.87, long = -122.40 WHERE site_name = 'MSK-4';
 ~~~
 {: .sql}
 
@@ -164,15 +164,15 @@ once we realize that Frank Danforth didn't take any measurements,
 we can remove him from the `Person` table like this:
 
 ~~~
-DELETE FROM Person WHERE id = 'danforth';
+DELETE FROM Person WHERE person_id = 'danforth';
 ~~~
 {: .sql}
 
 But what if we removed Anderson Lake instead?
-Our `Survey` table would still contain seven records
+Our `Measurement` table would still contain seven records
 of measurements he'd taken,
 but that's never supposed to happen:
-`Survey.person` is a foreign key into the `Person` table,
+`Measurement.person_id` is a foreign key into the `Person` table,
 and all our queries assume there will be a row in the latter
 matching every value in the former.
 
@@ -205,11 +205,11 @@ this technique is outside the scope of this chapter.
 > ## Replacing NULL
 >
 > Write an SQL statement to replace all uses of `null` in
-> `Survey.person` with the string `'unknown'`.
+> `Measurement.person` with the string `'unknown'`.
 >
 > > ## Solution
 > > ~~~
-> > UPDATE Survey SET person = 'unknown' WHERE person IS NULL;
+> > UPDATE Measurement SET person_id = 'unknown' WHERE person IS NULL;
 > > ~~~
 > > {: .sql}
 > {: .solution}
