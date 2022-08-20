@@ -17,14 +17,14 @@ keypoints:
 - "If no aggregation function is specified for a field, the query may return an arbitrary value for that field."
 ---
 We now want to calculate ranges and averages for our data.
-We know how to select all of the dates from the `Visited` table:
+We know how to select all of the dates from the `Visit` table:
 
 ~~~
-SELECT dated FROM Visited;
+SELECT visit_date FROM Visit;
 ~~~
 {: .sql}
 
-|dated     |
+|visit_date|
 |----------|
 |1927-02-08|
 |1927-02-10|
@@ -42,22 +42,22 @@ Each of these functions takes a set of records as input,
 and produces a single record as output:
 
 ~~~
-SELECT min(dated) FROM Visited;
+SELECT min(visit_date) FROM Visit;
 ~~~
 {: .sql}
 
-|min(dated)|
-|----------|
-|1927-02-08|
+|min(visit_date)|
+|---------------|
+|1927-02-08     |
 
 ![SQL Aggregation](../fig/sql-aggregation.svg)
 
 ~~~
-SELECT max(dated) FROM Visited;
+SELECT max(visit_date) FROM Visit;
 ~~~
 {: .sql}
 
-|max(dated)|
+|max(visit_date)|
 |----------|
 |1932-03-22|
 
@@ -68,34 +68,34 @@ Three others are `avg`,
 and `sum`:
 
 ~~~
-SELECT avg(reading) FROM Survey WHERE quant = 'sal';
+SELECT avg(value) FROM Measurement WHERE type = 'sal';
 ~~~
 {: .sql}
 
-|avg(reading)    |
+|avg(value)      |
 |----------------|
-|7.20333333333333|
+|7.20333333333334|
 
 ~~~
-SELECT count(reading) FROM Survey WHERE quant = 'sal';
+SELECT count(value) FROM Measurement WHERE type = 'sal';
 ~~~
 {: .sql}
 
-|count(reading)|
+|count(value)  |
 |--------------|
 |9             |
 
 ~~~
-SELECT sum(reading) FROM Survey WHERE quant = 'sal';
+SELECT sum(value) FROM Measurement WHERE type = 'sal';
 ~~~
 {: .sql}
 
-|sum(reading)|
+|sum(value)  |
 |------------|
 |64.83       |
 
-We used `count(reading)` here,
-but we could just as easily have counted `quant`
+We used `count(value)` here,
+but we could just as easily have counted `type`
 or any other field in the table,
 or even used `count(*)`,
 since the function doesn't care about the values themselves,
@@ -107,11 +107,11 @@ for example,
 find the range of sensible salinity measurements:
 
 ~~~
-SELECT min(reading), max(reading) FROM Survey WHERE quant = 'sal' AND reading <= 1.0;
+SELECT min(value), max(value) FROM Measurement WHERE type = 'sal' AND value <= 1.0;
 ~~~
 {: .sql}
 
-|min(reading)|max(reading)|
+|min(value)  |max(value)  |
 |------------|------------|
 |0.05        |0.21        |
 
@@ -119,15 +119,15 @@ We can also combine aggregated results with raw results,
 although the output might surprise you:
 
 ~~~
-SELECT person, count(*) FROM Survey WHERE quant = 'sal' AND reading <= 1.0;
+SELECT person_id, count(*) FROM Measurement WHERE type = 'sal' AND value <= 1.0;
 ~~~
 {: .sql}
 
 |person|count(\*)|
 |------|--------|
-|lake  |7       |
+|dyer  |7       |
 
-Why does Lake's name appear rather than Roerich's or Dyer's?
+Why does Dyer's name appear rather than Roerich's or Lake's?
 The answer is that when it has to aggregate a field,
 but isn't told how to,
 the database manager chooses an actual value from the input set.
@@ -141,11 +141,11 @@ aggregation's result is "don't know"
 rather than zero or some other arbitrary value:
 
 ~~~
-SELECT person, max(reading), sum(reading) FROM Survey WHERE quant = 'missing';
+SELECT person_id, max(value), sum(value) FROM Measurement WHERE type = 'missing';
 ~~~
 {: .sql}
 
-|person|max(reading)|sum(reading)|
+|person|max(value)|sum(value)|
 |------|------------|------------|
 |-null-|-null-      |-null-      |
 
@@ -165,24 +165,24 @@ and only combine those that are non-null.
 This behavior lets us write our queries as:
 
 ~~~
-SELECT min(dated) FROM Visited;
+SELECT min(visit_date) FROM Visit;
 ~~~
 {: .sql}
 
-|min(dated)|
-|----------|
-|1927-02-08|
+|min(visit_date)|
+|---------------|
+|1927-02-08     |
 
 instead of always having to filter explicitly:
 
 ~~~
-SELECT min(dated) FROM Visited WHERE dated IS NOT NULL;
+SELECT min(visit_date) FROM Visit WHERE visit_date IS NOT NULL;
 ~~~
 {: .sql}
 
-|min(dated)|
-|----------|
-|1927-02-08|
+|min(visit_date)|
+|---------------|
+|1927-02-08     |
 
 Aggregating all records at once doesn't always make sense.
 For example,
@@ -191,15 +191,15 @@ and that some scientists' radiation readings are higher than others.
 We know that this doesn't work:
 
 ~~~
-SELECT person, count(reading), round(avg(reading), 2)
-FROM  Survey
-WHERE quant = 'rad';
+SELECT person_id, count(value), round(avg(value), 2)
+FROM  Measurement
+WHERE type = 'rad';
 ~~~
 {: .sql}
 
-|person|count(reading)|round(avg(reading), 2)|
-|------|--------------|----------------------|
-|roe   |8             |6.56                  |
+|person_id|count(value)|round(avg(value), 2)|
+|---------|------------|--------------------|
+|dyer     |8           |6.56                |
 
 because the database manager selects a single arbitrary scientist's name
 rather than aggregating separately for each scientist.
@@ -207,16 +207,16 @@ Since there are only five scientists,
 we could write five queries of the form:
 
 ~~~
-SELECT person, count(reading), round(avg(reading), 2)
-FROM  Survey
-WHERE quant = 'rad'
-AND   person = 'dyer';
+SELECT person_id, count(value), round(avg(value), 2)
+FROM  Measurement
+WHERE type = 'rad'
+AND   person_id = 'dyer';
 ~~~
 {: .sql}
 
-person|count(reading)|round(avg(reading), 2)|
-------|--------------|----------------------|
-dyer  |2             |8.81                  |
+|person_id|count(value)|round(avg(value), 2)|
+|---------|------------|--------------------|
+|dyer     |2           |8.81                |
 
 but this would be tedious,
 and if we ever had a data set with fifty or five hundred scientists,
@@ -227,27 +227,27 @@ tell the database manager to aggregate the hours for each scientist separately
 using a `GROUP BY` clause:
 
 ~~~
-SELECT   person, count(reading), round(avg(reading), 2)
-FROM     Survey
-WHERE    quant = 'rad'
-GROUP BY person;
+SELECT   person_id, count(value), round(avg(value), 2)
+FROM     Measurement
+WHERE    type = 'rad'
+GROUP BY person_id;
 ~~~
 {: .sql}
 
-person|count(reading)|round(avg(reading), 2)|
-------|--------------|----------------------|
-dyer  |2             |8.81                  |
-lake  |2             |1.82                  |
-pb    |3             |6.66                  |
-roe   |1             |11.25                 |
+|person_id|count(value)|round(avg(value), 2)|
+|---------|------------|--------------------|
+|dyer     |2           |8.81                |
+|lake     |2           |1.82                |
+|pb       |3           |6.66                |
+|roe      |1           |11.25               |
 
 `GROUP BY` does exactly what its name implies:
 groups all the records with the same value for the specified field together
 so that aggregation can process each batch separately.
-Since all the records in each batch have the same value for `person`,
+Since all the records in each batch have the same value for `person_id`,
 it no longer matters that the database manager
 is picking an arbitrary one to display
-alongside the aggregated `reading` values.
+alongside the aggregated `value` values.
 
 Just as we can sort by multiple criteria at once,
 we can also group by multiple criteria.
@@ -256,70 +256,70 @@ for example,
 we just add another field to the `GROUP BY` clause:
 
 ~~~
-SELECT   person, quant, count(reading), round(avg(reading), 2)
-FROM     Survey
-GROUP BY person, quant;
+SELECT   person_id, type, count(value), round(avg(value), 2)
+FROM     Measurement
+GROUP BY person_id, type;
 ~~~
 {: .sql}
 
-|person|quant|count(reading)|round(avg(reading), 2)|
-|------|-----|--------------|----------------------|
-|-null-|sal  |1             |0.06                  |
-|-null-|temp |1             |-26.0                 |
-|dyer  |rad  |2             |8.81                  |
-|dyer  |sal  |2             |0.11                  |
-|lake  |rad  |2             |1.82                  |
-|lake  |sal  |4             |0.11                  |
-|lake  |temp |1             |-16.0                 |
-|pb    |rad  |3             |6.66                  |
-|pb    |temp |2             |-20.0                 |
-|roe   |rad  |1             |11.25                 |
-|roe   |sal  |2             |32.05                 |
+|person_id|type|count(value)|round(avg(value), 2)|
+|---------|----|------------|--------------------|
+|-null-   |sal |1           |0.06                |
+|-null-   |temp|1           |-26.0               |
+|dyer     |rad |2           |8.81                |
+|dyer     |sal |2           |0.11                |
+|lake     |rad |2           |1.82                |
+|lake     |sal |4           |0.11                |
+|lake     |temp|1           |-16.0               |
+|pb       |rad |3           |6.66                |
+|pb       |temp|2           |-20.0               |
+|roe      |rad |1           |11.25               |
+|roe      |sal |2           |32.05               |
 
-Note that we have added `quant` to the list of fields displayed,
+Note that we have added `type` to the list of fields displayed,
 since the results wouldn't make much sense otherwise.
 
 Let's go one step further and remove all the entries
 where we don't know who took the measurement:
 
 ~~~
-SELECT   person, quant, count(reading), round(avg(reading), 2)
-FROM     Survey
-WHERE    person IS NOT NULL
-GROUP BY person, quant
-ORDER BY person, quant;
+SELECT   person_id, type, count(value), round(avg(value), 2)
+FROM     Measurement
+WHERE    person_id IS NOT NULL
+GROUP BY person_id, type
+ORDER BY person_id, type;
 ~~~
 {: .sql}
 
-|person|quant|count(reading)|round(avg(reading), 2)|
-|------|-----|--------------|----------------------|
-|dyer  |rad  |2             |8.81                  |
-|dyer  |sal  |2             |0.11                  |
-|lake  |rad  |2             |1.82                  |
-|lake  |sal  |4             |0.11                  |
-|lake  |temp |1             |-16.0                 |
-|pb    |rad  |3             |6.66                  |
-|pb    |temp |2             |-20.0                 |
-|roe   |rad  |1             |11.25                 |
-|roe   |sal  |2             |32.05                 |
+|person_id|type|count(value)|round(avg(value), 2)|
+|---------|----|------------|--------------------|
+|dyer     |rad |2           |8.81                |
+|dyer     |sal |2           |0.11                |
+|lake     |rad |2           |1.82                |
+|lake     |sal |4           |0.11                |
+|lake     |temp|1           |-16.0               |
+|pb       |rad |3           |6.66                |
+|pb       |temp|2           |-20.0               |
+|roe      |rad |1           |11.25               |
+|roe      |sal |2           |32.05               |
 
 Looking more closely,
 this query:
 
-1.  selected records from the `Survey` table
-    where the `person` field was not null;
+1.  selected records from the `Measurement` table
+    where the `person_id` field was not null;
 
 2.  grouped those records into subsets
-    so that the `person` and `quant` values in each subset
+    so that the `person_id` and `type` values in each subset
     were the same;
 
-3.  ordered those subsets first by `person`,
-    and then within each sub-group by `quant`;
+3.  ordered those subsets first by `person_id`,
+    and then within each sub-group by `type`;
     and
 
 4.  counted the number of records in each subset,
-    calculated the average `reading` in each,
-    and chose a `person` and `quant` value from each
+    calculated the average `value` in each,
+    and chose a `person_id` and `type` value from each
     (it doesn't matter which ones,
     since they're all equal).
 
@@ -331,13 +331,13 @@ this query:
 > > ## Solution
 > >
 > > ~~~
-> > SELECT count(reading), avg(reading) FROM Survey WHERE quant = 'temp' AND person = 'pb';
+> > SELECT count(value), avg(value) FROM Measurement WHERE type = 'temp' AND person_id = 'pb';
 > > ~~~
 > > {: .sql}
 > >
-> > |count(reading)|avg(reading)|
-> > |--------------|------------|
-> > |2             |-20.0       |
+> > |count(value)|avg(value)|
+> > |------------|----------|
+> > |2           |-20.0     |
 > {: .solution}
 {: .challenge}
 
@@ -372,7 +372,7 @@ this query:
 > We write the query:
 >
 > ~~~
-> SELECT reading - avg(reading) FROM Survey WHERE quant = 'rad';
+> SELECT value - avg(value) FROM Measurement WHERE type = 'rad';
 > ~~~
 > {: .sql}
 >
@@ -381,32 +381,32 @@ this query:
 > > ## Solution
 > > The query produces only one row of results when we what we really want is a result for each of the readings.
 > > The `avg()` function produces only a single value, and because it is run first, the table is reduced to a single row.
-> > The `reading` value is simply an arbitrary one.
+> > The `value` value is simply an arbitrary one.
 > >
 > > To achieve what we wanted, we would have to run two queries:
 > >
 > > ~~~
-> > SELECT avg(reading) FROM Survey WHERE quant='rad';
+> > SELECT avg(value) FROM Measurement WHERE type = 'rad';
 > > ~~~
 > > {: .sql}
 > >
 > > This produces the average value (6.5625), which we can then insert into a second query:
 > >
 > > ~~~
-> > SELECT reading - 6.5625 FROM Survey WHERE quant = 'rad';
+> > SELECT value - 6.5625 FROM Measurement WHERE type = 'rad';
 > > ~~~
 > > {: .sql}
 > >
 > > This produces what we want, but we can combine this into a single query using subqueries.
 > >
 > > ~~~
-> > SELECT reading - (SELECT avg(reading) FROM Survey WHERE quant='rad') FROM Survey WHERE quant = 'rad';
+> > SELECT value - (SELECT avg(value) FROM Measurement WHERE type = 'rad') FROM Measurement WHERE type = 'rad';
 > > ~~~
 > > {: .sql}
 > >
 > > This way we don't have execute two queries.
 > >
-> > In summary what we have done is to replace `avg(reading)` with `(SELECT avg(reading) FROM Survey WHERE quant='rad')` in the original query.
+> > In summary what we have done is to replace `avg(value)` with `(SELECT avg(value) FROM Measurement WHERE type = 'rad')` in the original query.
 > >
 > {: .solution}
 {: .challenge}
@@ -429,16 +429,15 @@ this query:
 > Can you find a way to list all the scientists personal and family names separated by a comma?
 > > List all the family names separated by a comma:
 > > ~~~
-> > SELECT group_concat(family, ',') FROM Person;
+> > SELECT group_concat(family_name, ',') FROM Person;
 > > ~~~
 > > {: .sql}
 > >
 > > List all the full names separated by a comma:
 > > ~~~
-> > SELECT group_concat(personal || ' ' || family, ',') FROM Person;
+> > SELECT group_concat(personal_name || ' ' || family_name, ',') FROM Person;
 > > ~~~
 > > {: .sql}
 
 > {: .solution}
 {: .challenge}
-
