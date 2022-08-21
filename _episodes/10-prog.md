@@ -95,7 +95,7 @@ this function takes a user's ID as a parameter and returns their name:
 import sqlite3
 
 def get_name(database_file, person_id):
-    query = "SELECT personal || ' ' || family FROM Person WHERE id='" + person_id + "';"
+    query = "SELECT personal_name || ' ' || family_name FROM Person WHERE person_id='" + person_id + "';"
 
     connection = sqlite3.connect(database_file)
     cursor = connection.cursor()
@@ -120,7 +120,7 @@ This seems simple enough,
 but what happens if someone gives us this string as input?
 
 ~~~
-dyer'; DROP TABLE Survey; SELECT '
+dyer'; DROP TABLE Measurement; SELECT '
 ~~~
 {: .source}
 
@@ -130,7 +130,7 @@ If we insert this string into our query,
 the result is:
 
 ~~~
-SELECT personal || ' ' || family FROM Person WHERE id='dyer'; DROP TABLE Survey; SELECT '';
+SELECT personal_name || ' ' || family_name FROM Person WHERE person_id='dyer'; DROP TABLE Measurement; SELECT '';
 ~~~
 {: .sql}
 
@@ -155,7 +155,7 @@ Here's what our example program looks like if we do this:
 import sqlite3
 
 def get_name(database_file, person_id):
-    query = "SELECT personal || ' ' || family FROM Person WHERE id=?;"
+    query = "SELECT personal_name || ' ' || family_name FROM Person WHERE person_id=?;"
 
     connection = sqlite3.connect(database_file)
     cursor = connection.cursor()
@@ -193,7 +193,7 @@ For instance, we can define a new function called `add_name` like so:
 import sqlite3
 
 def add_name(database_file, new_person):
-    query = "INSERT INTO Person (id, personal, family) VALUES (?, ?, ?);"
+    query = "INSERT INTO Person (id, personal_name, family_name) VALUES (?, ?, ?);"
 
     connection = sqlite3.connect(database_file)
     cursor = connection.cursor()
@@ -203,7 +203,7 @@ def add_name(database_file, new_person):
 
 
 def get_name(database_file, person_id):
-    query = "SELECT personal || ' ' || family FROM Person WHERE id=?;"
+    query = "SELECT personal_name || ' ' || family_name FROM Person WHERE person_id=?;"
 
     connection = sqlite3.connect(database_file)
     cursor = connection.cursor()
@@ -236,7 +236,7 @@ the connection, in order to save our changes to the database.
 import sqlite3
 
 def add_name(database_file, new_person):
-    query = "INSERT INTO Person (id, personal, family) VALUES (?, ?, ?);"
+    query = "INSERT INTO Person (id, personal_name, family_name) VALUES (?, ?, ?);"
 
     connection = sqlite3.connect(database_file)
     cursor = connection.cursor()
@@ -247,7 +247,7 @@ def add_name(database_file, new_person):
 
 
 def get_name(database_file, person_id):
-    query = "SELECT personal || ' ' || family FROM Person WHERE id=?;"
+    query = "SELECT personal_name || ' ' || family_name FROM Person WHERE person_id=?;"
 
     connection = sqlite3.connect(database_file)
     cursor = connection.cursor()
