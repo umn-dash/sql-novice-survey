@@ -209,7 +209,7 @@ this technique is outside the scope of this chapter.
 >
 > > ## Solution
 > > ~~~
-> > UPDATE Measurement SET person_id = 'unknown' WHERE person IS NULL;
+> > UPDATE Measurement SET person_id = 'unknown' WHERE person_id IS NULL;
 > > ~~~
 > > {: .sql}
 > {: .solution}
