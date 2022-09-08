@@ -119,7 +119,7 @@ e.g., by their identifier instead of by their personal name.
 We can do this in SQL by adding an `ORDER BY` clause to our query:
 
 ~~~
-SELECT * FROM Person ORDER BY id;
+SELECT * FROM Person ORDER BY person_id;
 ~~~
 {: .sql}
 
