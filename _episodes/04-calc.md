@@ -168,7 +168,7 @@ SELECT personal_name || ' ' || family_name FROM Person;
 > separated by a '-':
 >
 > ~~~
-> SELECT DISTINCT site FROM Visit;
+> SELECT DISTINCT site_name FROM Visit;
 > ~~~
 > {: .sql}
 >
