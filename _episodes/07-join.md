@@ -94,7 +94,7 @@ SELECT
   *
 FROM
   Site
-  JOIN Visit ON Site.site_name = Visit.site_name_name;
+  JOIN Visit ON Site.site_name = Visit.site_name;
 ~~~
 {: .sql}
 
@@ -138,7 +138,7 @@ SELECT
   Visit.visit_date
 FROM
   Site
-  JOIN Visit ON Site.site_name = Visit.site_name_name;
+  JOIN Visit ON Site.site_name = Visit.site_name;
 ~~~
 {: .sql}
 
@@ -171,7 +171,7 @@ SELECT
 FROM
   Site
   JOIN Visit
-  JOIN Measurement ON Site.site_name = Visit.site_name_name
+  JOIN Measurement ON Site.site_name = Visit.site_name
   AND Visit.visit_id = Measurement.visit_id
   AND Visit.visit_date IS NOT NULL;
 ~~~
