@@ -83,7 +83,7 @@ SELECT DISTINCT visit_id, type FROM Measurement;
 ~~~
 {: .sql}
 
-|taken|quant|
+|visit_id|value|
 |-----|-----|
 |619  |rad  |
 |619  |sal  |
