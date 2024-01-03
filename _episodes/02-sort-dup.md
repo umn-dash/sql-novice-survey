@@ -267,6 +267,6 @@ SELECT DISTINCT type, person_id FROM Measurement ORDER BY type ASC;
 > > |Anderson     |Lake       |
 > > |Frank        |Pabodie    |
 > > |Valentina    |Roerich    |
->
+> >
 > {: .solution}
 {: .challenge}
