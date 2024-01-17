@@ -361,7 +361,7 @@ SELECT rowid, * FROM Person;
  > {: .solution}
 {: .challenge}
 
-A good visual explanation of joins can be found [here][joinref]
+For a visual explanation of joins see the [SQL Joins Visualizer][joinref].
 
 [outer]: https://en.wikipedia.org/wiki/Join_%28SQL%29#Outer_join
 [rowid]: https://www.sqlite.org/lang_createtable.html#rowid
