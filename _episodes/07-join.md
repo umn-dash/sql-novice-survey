@@ -254,15 +254,12 @@ SELECT rowid, * FROM Person;
  > > SELECT
  > >    Measurement.value
  > > FROM
- > >    Site
+ > >    Measurement
  > >    JOIN
  > >       Visit
- > >   JOIN
- > >       Measurement
- > >       ON Site.site_name = Visit.site_name
- > >       AND Visit.visit_id = Measurement.visit_id
+ > >       ON Visit.visit_id = Measurement.visit_id
  > > WHERE
- > >    Site.site_name = 'DR-1'
+ > >    Visit.site_name = 'DR-1'
  > >    AND Measurement.type = 'rad';
  > > ~~~
  > > {: .sql}
