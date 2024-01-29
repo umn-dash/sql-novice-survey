@@ -23,15 +23,11 @@ If the message printed does not end with '/bash' then your default is something 
 
 ## MacOS
 
-The default shell in some versions of MacOS is Bash, and Bash is available in all versions, so no need to install anything.
-You access Bash from the Terminal (found in `/Applications/Utilities`). See the Git installation [video tutorial](https://youtu.be/9LQhwETCdwY)
+The default shell in older versions of MacOS was `bash`. The default shell since 2019 is `zsh`, though `bash` is still available. For the purposes of
+this workshop, the shells are similar enough that either is appropriate.
+
+You access `bash` or `zsh` from the Terminal (found in `/Applications/Utilities`). See the Git installation [video tutorial](https://youtu.be/9LQhwETCdwY)
 for an example on how to open the Terminal. You may want to keep Terminal in your dock for this workshop.
-
-To see if your default shell is Bash type `echo $SHELL` in Terminal and press the **Return** key. If the message printed does not end with '/bash'
-then your default is something else and you can run Bash by typing `bash`.
-
-If you want to change your default shell, see this [Apple Support article](https://support.apple.com/en-au/HT208050) and follow the instructions on
-"How to change your default shell".
 
 ## Windows
 
