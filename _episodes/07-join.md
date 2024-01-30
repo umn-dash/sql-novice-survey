@@ -279,16 +279,15 @@ SELECT rowid, * FROM Person;
  > >
  > > ~~~
  > > SELECT
- > >   DISTINCT Site.site_name
+ > >   DISTINCT Visit.site_name
  > > FROM
- > >   Site
- > >   JOIN Visit
+ > >   Visit
  > >   JOIN Measurement
- > >   JOIN Person ON Site.site_name = Visit.site_name
- > >   AND Visit.visit_id = Measurement.visit_id
- > >   AND Measurement.person_id = Person.person_id
- > > WHERE
- > >   Person.personal_name = 'Frank';
+ > >   JOIN Person ON
+ > >     Visit.visit_id = Measurement.visit_id
+ > >     AND Measurement.person_id = Person.person_id
+ > >   WHERE
+ > >     Person.personal_name = 'Frank';
  > > ~~~
  > > {: .sql}
  > >
