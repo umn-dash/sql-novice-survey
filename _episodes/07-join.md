@@ -254,15 +254,12 @@ SELECT rowid, * FROM Person;
  > > SELECT
  > >    Measurement.value
  > > FROM
- > >    Site
+ > >    Measurement
  > >    JOIN
  > >       Visit
- > >   JOIN
- > >       Measurement
- > >       ON Site.site_name = Visit.site_name
- > >       AND Visit.visit_id = Measurement.visit_id
+ > >       ON Visit.visit_id = Measurement.visit_id
  > > WHERE
- > >    Site.site_name = 'DR-1'
+ > >    Visit.site_name = 'DR-1'
  > >    AND Measurement.type = 'rad';
  > > ~~~
  > > {: .sql}
@@ -282,16 +279,15 @@ SELECT rowid, * FROM Person;
  > >
  > > ~~~
  > > SELECT
- > >   DISTINCT Site.site_name
+ > >   DISTINCT Visit.site_name
  > > FROM
- > >   Site
- > >   JOIN Visit
+ > >   Visit
  > >   JOIN Measurement
- > >   JOIN Person ON Site.site_name = Visit.site_name
- > >   AND Visit.visit_id = Measurement.visit_id
- > >   AND Measurement.person_id = Person.person_id
- > > WHERE
- > >   Person.personal_name = 'Frank';
+ > >   JOIN Person ON
+ > >     Visit.visit_id = Measurement.visit_id
+ > >     AND Measurement.person_id = Person.person_id
+ > >   WHERE
+ > >     Person.personal_name = 'Frank';
  > > ~~~
  > > {: .sql}
  > >
@@ -361,7 +357,7 @@ SELECT rowid, * FROM Person;
  > {: .solution}
 {: .challenge}
 
-A good visual explanation of joins can be found [here][joinref]
+For a visual explanation of joins see the [SQL Joins Visualizer][joinref].
 
 [outer]: https://en.wikipedia.org/wiki/Join_%28SQL%29#Outer_join
 [rowid]: https://www.sqlite.org/lang_createtable.html#rowid
