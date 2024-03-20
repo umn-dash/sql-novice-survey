@@ -31,6 +31,15 @@ for an example on how to open the Terminal. You may want to keep Terminal in you
 
 ## Windows
 
+* Ensure the `HOME` environment variable is set.
+    * Open command prompt (Open Start Menu then type `cmd` and press **Enter**).
+    * Type `echo "%USERPROFILE%"` and press **Enter**. The result displayed should be a value like `C:\Users\yourUserName`, that matches
+      the path to your user (home) folder.
+    * Type `echo "%HOME%"` and press **Enter**. If the result displayed matches that for `USERPROFILE`, skip the rest of these steps.
+    * If `USERPROFILE` has the expected value, type `setx HOME "%USERPROFILE%"`.
+    * If `USERPROFILE` does not have the expected value, set `HOME` according to the path to your use folder, e.g., `setx HOME "C:\Users\yourUserName"`.
+    * Press **Enter**. The result should be something like, `SUCCESS: Specified value was saved.`
+    * Quit command prompt by typing `exit` then pressing **Enter**.
 * Download the [Git for Windows installer](https://gitforwindows.org/).
 * Run the installer and follow the steps below.
     * Click on "Next" four times (two times if you've previously installed Git). You don't need to change anything in the Information, location, components, and start menu screens.
@@ -46,11 +55,6 @@ for an example on how to open the Terminal. You may want to keep Terminal in you
     * Ensure that "Enable file system caching" is selected and click on "Next".
     * Click on "Install".
     * Click on "Finish" or "Next".
-* If your "HOME" environment variable is not set (or you don't know what this is):
-    * Open command prompt (Open Start Menu then type `cmd` and press **Enter**).
-    * Type the following line into the command prompt window exactly as shown: `setx HOME "%USERPROFILE%"`
-    * Press **Enter**, you should see `SUCCESS: Specified value was saved.`
-    * Quit command prompt by typing `exit` then pressing **Enter**.
 
 This will provide you with both Git and Bash in the Git Bash program.
 
